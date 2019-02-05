@@ -12,6 +12,8 @@ This module provides internal parser functions.
 
 {-# OPTIONS_GHC -Wall -Werror #-}
 
+{-# LANGUAGE CPP #-}
+
 module Text.SExpression.Internal
     ( -- * S-expression parser
       parseSExpr
@@ -30,6 +32,10 @@ import Text.Megaparsec
     ( (<|>)
     , endBy
     , many
+#if MIN_VERSION_GLASGOW_HASKELL(8,6,0,0)
+    , noneOf
+    , oneOf
+#endif
     , sepBy
     , some
     , try
@@ -38,8 +44,10 @@ import Text.Megaparsec.Char
     ( char
     , digitChar
     , letterChar
+#if !MIN_VERSION_GLASGOW_HASKELL(8,6,0,0)
     , noneOf
     , oneOf
+#endif
     , space1
     )
 import Text.Megaparsec.Char.Lexer
