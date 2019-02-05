@@ -1,5 +1,9 @@
 # sexpr-parser
 
+[![Travis branch](https://img.shields.io/travis/rcook/sexpr-parser/master.svg)](https://travis-ci.org/rcook/sexpr-parser)
+[![Hackage](https://img.shields.io/hackage/v/sexpr-parser.svg)](http://hackage.haskell.org/package/sexpr-parser)
+[![Licence](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/rcook/sexpr-parser/master/LICENSE)
+
 S-expression parser in Haskell
 
 ## Description
