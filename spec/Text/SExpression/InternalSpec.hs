@@ -285,3 +285,24 @@ spec = do
         it "skips comments" $
             parse parseSExpr "" "(aaa; a comment\nbbb ccc)"
                 `shouldBe` Right (List [Atom "aaa", Atom "bbb", Atom "ccc"])
+        it "handles trailing whitespace" $
+            parse parseSExpr "" "(model \n  (define-fun y () bool\n    true)\n  (define-fun x () bool\n    false)\n)\n"
+                `shouldBe` Right
+                    (List
+                        [ Atom "model"
+                        , List
+                            [ Atom "define-fun"
+                            , Atom "y"
+                            , List []
+                            , Atom "bool"
+                            , Atom "true"
+                            ]
+                        , List
+                            [ Atom "define-fun"
+                            , Atom "x"
+                            , List []
+                            , Atom"bool"
+                            , Atom "false"
+                            ]
+                        ]
+                    )

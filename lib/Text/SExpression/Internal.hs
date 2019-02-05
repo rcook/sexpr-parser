@@ -51,7 +51,7 @@ parseSExpr =
     <|> do
             void $ char '('
             lst <- (try parseList) <|> parseDottedList
-            void $ char ')'
+            void $ char ')' >> sc
             pure lst
 
 parseAtom :: Parser SExpr
