@@ -25,8 +25,8 @@ parseZ3Result = do
 parseZ3Output :: Parser Z3Output
 parseZ3Output = Z3Output <$> parseZ3Result <*> parseSExpr
 
-output :: String
-output = "sat\n\
+z3SatOutput :: String
+z3SatOutput = "sat\n\
     \(model\n\
     \(define-fun a4 () bool\n\
     \  false)\n\
@@ -73,7 +73,7 @@ output = "sat\n\
 
 main :: IO ()
 main = do
-    let Right (Z3Output result f) = parse parseZ3Output "" output
+    let Right (Z3Output result f) = parse parseZ3Output "" z3SatOutput
     for_ (sort (boolFuns f)) $ \(name, value) ->
         putStrLn $ printf "%s = %s" name (if value then "1" else "0")
     putStrLn $ "result=" ++ show result
