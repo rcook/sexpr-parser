@@ -34,7 +34,7 @@ main = do
         Left e -> putStrLn $ "Error: " ++ e
         Right (satResult, funs) -> do
             for_ funs $ \(name, value) ->
-                putStrLn $ printf "%s = %s" name (if value then ("1" :: String) else "0")
+                putStrLn $ printf "%s = %s" name (if value then "1" else "0")
             putStrLn $ "result=" ++ show satResult
 
 parseZ3SATResult :: Parser Z3SATResult
