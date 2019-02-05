@@ -64,7 +64,7 @@ parseDottedList = do
     pure $ DottedList h t
 
 parseNumber :: Parser SExpr
-parseNumber = fmap (Number . read) $ some digitChar
+parseNumber = (Number . read) <$> some digitChar
 
 parseString :: Parser SExpr
 parseString = do
