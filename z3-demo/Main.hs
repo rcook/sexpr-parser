@@ -45,7 +45,7 @@ main = do
         Right (satResult, funs) -> do
             for_ funs $ \(name, value) ->
                 putStrLn $ printf "%s = %s" name (if value then "1" else "0")
-            putStrLn $ "result=" ++ show satResult
+            putStrLn $ printf "result=%s" (show satResult)
 
 parseZ3SATResult :: Parser Z3SATResult
 parseZ3SATResult = do
