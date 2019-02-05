@@ -73,7 +73,6 @@ output = "sat\n\
 
 main :: IO ()
 main = do
-    print $ parse parseZ3Output "" output
     let Right (Z3Output result f) = parse parseZ3Output "" output
     for_ (sort (boolFuns f)) $ \(name, value) ->
         putStrLn $ printf "%s = %s" name (if value then "1" else "0")
