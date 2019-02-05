@@ -1,3 +1,13 @@
+{-|
+Module      : Main
+Description : Z3 demo
+Copyright   : (C) Richard Cook, 2019
+Licence     : MIT
+Maintainer  : rcook@rcook.org
+Stability   : stable
+Portability : portable
+-}
+
 {-# OPTIONS_GHC -Wall -Werror #-}
 
 module Main (main) where

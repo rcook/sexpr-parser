@@ -1,12 +1,26 @@
+{-|
+Module      : Text.SExpression.Internal
+Description : Internal parser functions
+Copyright   : (C) Richard Cook, 2019
+Licence     : MIT
+Maintainer  : rcook@rcook.org
+Stability   : stable
+Portability : portable
+
+This module provides internal parser functions.
+-}
+
 {-# OPTIONS_GHC -Wall -Werror #-}
 
 module Text.SExpression.Internal
-    ( parseAtom
-    , parseDottedList
+    ( -- * S-expression parser
+      parseSExpr
+    , -- * S-expression value parsers
+      parseAtom
+    , parseConsList
     , parseList
     , parseNumber
     , parseQuoted
-    , parseSExpr
     , parseString
     ) where
 
@@ -42,7 +56,9 @@ sc = space space1 lineComment empty
 symbol :: Parser Char
 symbol = oneOf "!$%&|*+-/:<=>?@^_~#"
 
-parseSExpr :: Parser SExpr
+-- | S-expression parser
+parseSExpr ::
+    Parser SExpr    -- ^ parser
 parseSExpr =
     parseAtom
     <|> parseString
@@ -50,11 +66,13 @@ parseSExpr =
     <|> parseQuoted
     <|> do
             void $ char '('
-            lst <- (try parseList) <|> parseDottedList
+            lst <- (try parseList) <|> parseConsList
             void $ char ')' >> sc
             pure lst
 
-parseAtom :: Parser SExpr
+-- | Parse s-expression atom
+parseAtom ::
+    Parser SExpr    -- ^ parser
 parseAtom = do
     h <- letterChar <|> symbol
     t <- many (letterChar <|> digitChar <|> symbol)
@@ -64,26 +82,36 @@ parseAtom = do
                 "#f" -> Bool False
                 _ -> Atom s
 
-parseList :: Parser SExpr
+-- | Parse s-expression list
+parseList ::
+    Parser SExpr    -- ^ parser
 parseList = List <$> parseSExpr `sepBy` sc
 
-parseDottedList :: Parser SExpr
-parseDottedList = do
+-- | Parse s-expression cons list
+parseConsList ::
+    Parser SExpr    -- ^ parser
+parseConsList = do
     h <- parseSExpr `endBy` sc
     t <- char '.' >> sc >> parseSExpr
-    pure $ DottedList h t
+    pure $ ConsList h t
 
-parseNumber :: Parser SExpr
+-- | Parse s-expression number literal
+parseNumber ::
+    Parser SExpr    -- ^ parser
 parseNumber = (Number . read) <$> some digitChar
 
-parseString :: Parser SExpr
+-- | Parse s-expression string literal
+parseString ::
+    Parser SExpr    -- ^ parser
 parseString = do
     void $ char '"'
     s <- many (noneOf "\"")
     void $ char '"'
     pure $ String s
 
-parseQuoted :: Parser SExpr
+-- | Parse s-expression quoted expression
+parseQuoted ::
+    Parser SExpr    -- ^ parser
 parseQuoted = do
     void $ char '\''
     e <- parseSExpr

@@ -1,3 +1,13 @@
+{-|
+Module      : Text.SExpression.InternalSpec
+Description : Tests
+Copyright   : (C) Richard Cook, 2019
+Licence     : MIT
+Maintainer  : rcook@rcook.org
+Stability   : stable
+Portability : portable
+-}
+
 {-# OPTIONS_GHC -Wall -Werror #-}
 
 module Text.SExpression.InternalSpec (spec) where
@@ -11,7 +21,7 @@ import Test.Hspec
 import Text.Megaparsec (parse)
 import Text.SExpression.Internal
     ( parseAtom
-    , parseDottedList
+    , parseConsList
     , parseList
     , parseNumber
     , parseQuoted
@@ -73,9 +83,9 @@ spec = do
     describe "parseList" $
         it "parses a list of different atoms" $
             parse parseList "" "#t #f x foo 123" `shouldBe` Right (List [Bool True, Bool False, Atom "x", Atom "foo", Number 123])
-    describe "parseDottedList" $
-        it "parses a dotted list" $
-            parse parseDottedList "" "123 . foo" `shouldBe` Right (DottedList [Number 123] (Atom "foo"))
+    describe "parseConsList" $
+        it "parses a cons list" $
+            parse parseConsList "" "123 . foo" `shouldBe` Right (ConsList [Number 123] (Atom "foo"))
     describe "parseNumber" $
         it "parses number literal" $
             parse parseNumber "" "123" `shouldBe` Right (Number 123)
