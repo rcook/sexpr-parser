@@ -11,17 +11,6 @@ build-type:             Simple
 cabal-version:          >= 1.10
 extra-source-files:     README.md
 
-executable sexpr-parser-demo
-  default-language:     Haskell2010
-  hs-source-dirs:       src
-  main-is:              Main.hs
-  build-depends:
-      base >= 4.7 && < 5
-    , bytestring
-    , megaparsec
-    , process
-    , sexpr-parser
-
 library
   default-language:       Haskell2010
   hs-source-dirs:         lib
@@ -45,4 +34,15 @@ test-suite sexpr-parser-spec
       base >= 4.7 && < 5
     , hspec
     , megaparsec
+    , sexpr-parser
+
+executable sexpr-parser-z3-demo
+  default-language:     Haskell2010
+  hs-source-dirs:       z3-demo
+  main-is:              Main.hs
+  build-depends:
+      base >= 4.7 && < 5
+    , bytestring
+    , megaparsec
+    , process
     , sexpr-parser
