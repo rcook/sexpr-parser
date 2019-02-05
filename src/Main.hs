@@ -3,21 +3,42 @@
 module Main (main) where
 
 import Control.Applicative ((<|>))
+import Control.Exception (evaluate)
 import Control.Monad (void)
 import Data.Foldable (for_)
 import Data.List (sort)
 import Data.Maybe (catMaybes)
+import System.IO (BufferMode(..), hGetContents, hPutStrLn, hSetBuffering)
+import System.Process
 import Text.Megaparsec (parse)
 import Text.Megaparsec.Char (char, string)
 import Text.Printf (printf)
 import Text.SExpression (Parser, SExpr(..), parseSExpr)
 
-data Z3Result = Satisfied | Unsatisfied deriving Show
+data Z3SATResult = Satisfied | Unsatisfied deriving Show
 
-data Z3Output = Z3Output Z3Result SExpr deriving Show
+data Z3Output = Z3Output Z3SATResult SExpr deriving Show
 
-parseZ3Result :: Parser Z3Result
-parseZ3Result = do
+main :: IO ()
+main = do
+    result <- checkSATWithZ3 "input.smt2" $
+        "(push)\n\
+        \(declare-const x bool)\n\
+        \(declare-const y bool)\n\
+        \(assert (and (not x) y))\n\
+        \(check-sat)\n\
+        \(get-model)\n\
+        \(pop)\n\
+        \(exit)\n"
+    case result of
+        Left e -> putStrLn $ "Error: " ++ e
+        Right (satResult, funs) -> do
+            for_ funs $ \(name, value) ->
+                putStrLn $ printf "%s = %s" name (if value then ("1" :: String) else "0")
+            putStrLn $ "result=" ++ show satResult
+
+parseZ3SATResult :: Parser Z3SATResult
+parseZ3SATResult = do
     s <-string "sat" <|> string "unsat"
     void $ char '\n'
     case s of
@@ -26,62 +47,23 @@ parseZ3Result = do
         _ -> error "Unreachable"
 
 parseZ3Output :: Parser Z3Output
-parseZ3Output = Z3Output <$> parseZ3Result <*> parseSExpr
+parseZ3Output = Z3Output <$> parseZ3SATResult <*> parseSExpr
 
-z3SatOutput :: String
-z3SatOutput = "sat\n\
-    \(model\n\
-    \(define-fun a4 () bool\n\
-    \  false)\n\
-    \(define-fun c3 () bool\n\
-    \  true)\n\
-    \(define-fun d4 () bool\n\
-    \  false)\n\
-    \(define-fun a2 () bool\n\
-    \  true)\n\
-    \(define-fun c5 () bool\n\
-    \  false)\n\
-    \(define-fun b4 () bool\n\
-    \  true)\n\
-    \(define-fun b5 () bool\n\
-    \  true)\n\
-    \(define-fun b2 () bool\n\
-    \  false)\n\
-    \(define-fun d1 () bool\n\
-    \  true)\n\
-    \(define-fun d2 () bool\n\
-    \  false)\n\
-    \(define-fun b1 () bool\n\
-    \  false)\n\
-    \(define-fun a5 () bool\n\
-    \  true)\n\
-    \(define-fun c2 () bool\n\
-    \  true)\n\
-    \(define-fun d3 () bool\n\
-    \  true)\n\
-    \(define-fun c4 () bool\n\
-    \  true)\n\
-    \(define-fun a1 () bool\n\
-    \  false)\n\
-    \(define-fun d5 () bool\n\
-    \  false)\n\
-    \(define-fun b3 () bool\n\
-    \  true)\n\
-    \(define-fun c0 () bool\n\
-    \  false)\n\
-    \(define-fun c1 () bool\n\
-    \  true)\n\
-    \(define-fun a3 () bool\n\
-    \  true))"
-
-main :: IO ()
-main = do
-    case parse parseZ3Output "some.smt2" z3SatOutput of
-        Left e -> putStrLn $ "Error: " ++ show e
-        Right (Z3Output result f) -> do
-            for_ (sort (boolFuns f)) $ \(name, value) ->
-                putStrLn $ printf "%s = %s" name (if value then "1" else "0")
-            putStrLn $ "result=" ++ show result
+checkSATWithZ3 :: String -> String -> IO (Either String (Z3SATResult, [(String, Bool)]))
+checkSATWithZ3 ctx input = do
+    output <- withCreateProcess (proc "z3" ["-in"])
+                        { std_in = CreatePipe
+                        , std_out = CreatePipe
+                        , std_err = Inherit
+                        } $ \(Just hIn) (Just hOut) _ _ -> do
+        hSetBuffering hIn NoBuffering
+        hPutStrLn hIn input
+        s <- hGetContents hOut
+        void $ evaluate (length s)
+        pure s
+    case parse parseZ3Output ctx output of
+        Left e -> pure $ Left (show e)
+        Right (Z3Output satResult f) -> pure $ Right (satResult, sort (boolFuns f))
 
 boolFuns :: SExpr -> [(String, Bool)]
 boolFuns (List (Atom "model" : fs)) = catMaybes $ map p fs
