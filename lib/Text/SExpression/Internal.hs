@@ -10,6 +10,7 @@ module Text.SExpression.Internal
     , parseString
     ) where
 
+import Control.Applicative (empty)
 import Control.Monad (void)
 import Text.Megaparsec
     ( (<|>)
@@ -25,9 +26,18 @@ import Text.Megaparsec.Char
     , letterChar
     , noneOf
     , oneOf
-    , space
+    , space1
+    )
+import Text.Megaparsec.Char.Lexer
+    ( space
+    , skipLineComment
     )
 import Text.SExpression.Types (Parser, SExpr(..))
+
+sc :: Parser ()
+sc = space space1 lineComment empty
+    where
+        lineComment = skipLineComment ";"
 
 symbol :: Parser Char
 symbol = oneOf "!$%&|*+-/:<=>?@^_~#"
@@ -55,12 +65,12 @@ parseAtom = do
                 _ -> Atom s
 
 parseList :: Parser SExpr
-parseList = List <$> parseSExpr `sepBy` space
+parseList = List <$> parseSExpr `sepBy` sc
 
 parseDottedList :: Parser SExpr
 parseDottedList = do
-    h <- parseSExpr `endBy` space
-    t <- char '.' >> space >> parseSExpr
+    h <- parseSExpr `endBy` sc
+    t <- char '.' >> sc >> parseSExpr
     pure $ DottedList h t
 
 parseNumber :: Parser SExpr

@@ -282,3 +282,6 @@ spec = do
                         , Atom "true"
                         ]
                     ]
+        it "skips comments" $
+            parse parseSExpr "" "(aaa; a comment\nbbb ccc)"
+                `shouldBe` Right (List [Atom "aaa", Atom "bbb", Atom "ccc"])
