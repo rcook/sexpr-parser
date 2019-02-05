@@ -2,11 +2,13 @@
 
 module Main (main) where
 
+import Control.Applicative ((<|>))
+import Control.Monad (void)
 import Data.Foldable (for_)
 import Data.List (sort)
 import Data.Maybe (catMaybes)
-import Text.Megaparsec (parse, someTill)
-import Text.Megaparsec.Char (char, lowerChar)
+import Text.Megaparsec (parse)
+import Text.Megaparsec.Char (char, string)
 import Text.Printf (printf)
 import Text.SExpression (Parser, SExpr(..), parseSExpr)
 
@@ -16,11 +18,12 @@ data Z3Output = Z3Output Z3Result SExpr deriving Show
 
 parseZ3Result :: Parser Z3Result
 parseZ3Result = do
-    s <- someTill lowerChar (char '\n')
+    s <-string "sat" <|> string "unsat"
+    void $ char '\n'
     case s of
         "sat" -> pure Satisfied
         "unsat" -> pure Unsatisfied
-        _ -> fail $ printf "Unexpected result: %s" s
+        _ -> error "Unreachable"
 
 parseZ3Output :: Parser Z3Output
 parseZ3Output = Z3Output <$> parseZ3Result <*> parseSExpr
@@ -73,10 +76,12 @@ z3SatOutput = "sat\n\
 
 main :: IO ()
 main = do
-    let Right (Z3Output result f) = parse parseZ3Output "" z3SatOutput
-    for_ (sort (boolFuns f)) $ \(name, value) ->
-        putStrLn $ printf "%s = %s" name (if value then "1" else "0")
-    putStrLn $ "result=" ++ show result
+    case parse parseZ3Output "some.smt2" z3SatOutput of
+        Left e -> putStrLn $ "Error: " ++ show e
+        Right (Z3Output result f) -> do
+            for_ (sort (boolFuns f)) $ \(name, value) ->
+                putStrLn $ printf "%s = %s" name (if value then "1" else "0")
+            putStrLn $ "result=" ++ show result
 
 boolFuns :: SExpr -> [(String, Bool)]
 boolFuns (List (Atom "model" : fs)) = catMaybes $ map p fs
