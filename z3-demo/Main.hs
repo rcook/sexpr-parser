@@ -39,7 +39,7 @@ main = do
 
 parseZ3SATResult :: Parser Z3SATResult
 parseZ3SATResult = do
-    s <-string "sat" <|> string "unsat"
+    s <- string "sat" <|> string "unsat"
     void $ char '\n'
     case s of
         "sat" -> pure Satisfied
