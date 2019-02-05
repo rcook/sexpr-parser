@@ -5,12 +5,29 @@ module Main (main) where
 import Data.Foldable (for_)
 import Data.List (sort)
 import Data.Maybe (catMaybes)
-import Text.Megaparsec (parse)
+import Text.Megaparsec (parse, someTill)
+import Text.Megaparsec.Char (char, lowerChar)
 import Text.Printf (printf)
-import Text.SExpression (SExpr(..), parseSExpr)
+import Text.SExpression (Parser, SExpr(..), parseSExpr)
 
-source :: String
-source = "(model\n\
+data Z3Result = Satisfied | Unsatisfied deriving Show
+
+data Z3Output = Z3Output Z3Result SExpr deriving Show
+
+parseZ3Result :: Parser Z3Result
+parseZ3Result = do
+    s <- someTill lowerChar (char '\n')
+    case s of
+        "sat" -> pure Satisfied
+        "unsat" -> pure Unsatisfied
+        _ -> fail $ printf "Unexpected result: %s" s
+
+parseZ3Output :: Parser Z3Output
+parseZ3Output = Z3Output <$> parseZ3Result <*> parseSExpr
+
+output :: String
+output = "sat\n\
+    \(model\n\
     \(define-fun a4 () bool\n\
     \  false)\n\
     \(define-fun c3 () bool\n\
@@ -56,9 +73,11 @@ source = "(model\n\
 
 main :: IO ()
 main = do
-    let Right f = parse parseSExpr "" source
+    print $ parse parseZ3Output "" output
+    let Right (Z3Output result f) = parse parseZ3Output "" output
     for_ (sort (boolFuns f)) $ \(name, value) ->
         putStrLn $ printf "%s = %s" name (if value then "1" else "0")
+    putStrLn $ "result=" ++ show result
 
 boolFuns :: SExpr -> [(String, Bool)]
 boolFuns (List (Atom "model" : fs)) = catMaybes $ map p fs
