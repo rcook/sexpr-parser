@@ -17,7 +17,6 @@ executable sexpr-parser-demo
   main-is:              Main.hs
   build-depends:
       base >= 4.7 && < 5
-    , hspec
     , megaparsec
     , sexpr-parser
 
