@@ -14,6 +14,17 @@ This module provides internal parser functions.
 
 {-# LANGUAGE CPP #-}
 
+#undef MEGAPARSEC_7_OR_LATER
+#ifdef MIN_VERSION_GLASGOW_HASKELL
+-- GHC >= 7.10.1.0
+#if MIN_VERSION_GLASGOW_HASKELL(8,0,0,0)
+-- GHC >= 8.0.0.0
+#if MIN_VERSION_megaparsec(7,0,0)
+#define MEGAPARSEC_7_OR_LATER
+#endif
+#endif
+#endif
+
 module Text.SExpression.Internal
     ( -- * S-expression parser
       parseSExpr
@@ -32,7 +43,7 @@ import Text.Megaparsec
     ( (<|>)
     , endBy
     , many
-#if MIN_VERSION_GLASGOW_HASKELL(8,6,0,0)
+#ifdef MEGAPARSEC_7_OR_LATER
     , noneOf
     , oneOf
 #endif
@@ -44,7 +55,7 @@ import Text.Megaparsec.Char
     ( char
     , digitChar
     , letterChar
-#if !MIN_VERSION_GLASGOW_HASKELL(8,6,0,0)
+#ifndef MEGAPARSEC_7_OR_LATER
     , noneOf
     , oneOf
 #endif
