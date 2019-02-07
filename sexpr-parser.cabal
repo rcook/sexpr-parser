@@ -24,7 +24,6 @@ library
   build-depends:
       base >= 4.7 && < 5
     , megaparsec
-    , parsec
 
 test-suite sexpr-parser-spec
   type:                 exitcode-stdio-1.0
