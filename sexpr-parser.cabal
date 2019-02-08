@@ -22,7 +22,7 @@ library
     , Text.SExpression.Internal
     , Text.SExpression.Types
   build-depends:
-      base              >= 4.9 && < 5
+      base              >= 4.9 && < 4.13
     , megaparsec        >= 6.5 && < 7.1
 
 test-suite sexpr-parser-spec
@@ -33,7 +33,7 @@ test-suite sexpr-parser-spec
   other-modules:
       Text.SExpression.InternalSpec
   build-depends:
-      base              >= 4.9 && < 5
+      base              >= 4.9 && < 4.13
     , hspec             >= 2.5 && < 2.8
     , megaparsec        >= 6.5 && < 7.1
     , sexpr-parser
@@ -43,7 +43,7 @@ executable sexpr-parser-z3-demo
   hs-source-dirs:       z3-demo
   main-is:              Main.hs
   build-depends:
-      base              >= 4.9 && < 5
+      base              >= 4.9 && < 4.13
     , bytestring        >= 0.10 && < 0.11
     , megaparsec        >= 6.5 && < 7.1
     , process           >= 1.6 && < 1.7
