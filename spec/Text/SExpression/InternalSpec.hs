@@ -23,10 +23,11 @@ import Text.SExpression.Internal
     ( parseAtom
     , parseConsList
     , parseList
-    , parseNumber
+    , parseNumberDef
     , parseQuoted
     , parseSExpr
-    , parseString
+    , parseStringDef
+    , def
     )
 import Text.SExpression.Types (SExpr(..))
 
@@ -34,11 +35,11 @@ spec :: Spec
 spec = do
     describe "parseSExpr" $
         it "parses test expressions" $ do
-            parse parseSExpr "" "assert" `shouldBe` Right (Atom "assert")
-            parse parseSExpr "" "(assert)" `shouldBe` Right (List [Atom "assert"])
-            parse parseSExpr "" "(assert (and))" `shouldBe` Right (List [Atom "assert", List [Atom "and"]])
-            parse parseSExpr "" "(assert (and (>)))" `shouldBe` Right (List [Atom "assert", List [Atom "and", List [Atom ">"]]])
-            parse parseSExpr "" "(assert (and (> (* 2 a) (+ b c)) (> (* 2 b) (+ c d))))" `shouldBe`
+            parse (parseSExpr def) "" "assert" `shouldBe` Right (Atom "assert")
+            parse (parseSExpr def) "" "(assert)" `shouldBe` Right (List [Atom "assert"])
+            parse (parseSExpr def) "" "(assert (and))" `shouldBe` Right (List [Atom "assert", List [Atom "and"]])
+            parse (parseSExpr def) "" "(assert (and (>)))" `shouldBe` Right (List [Atom "assert", List [Atom "and", List [Atom ">"]]])
+            parse (parseSExpr def) "" "(assert (and (> (* 2 a) (+ b c)) (> (* 2 b) (+ c d))))" `shouldBe`
                 Right (List
                         [ Atom "assert"
                         , List
@@ -72,32 +73,28 @@ spec = do
                             ]
                         ])
     describe "parseAtom" $ do
-        it "parses #t" $
-            parse parseAtom "" "#t" `shouldBe` Right (Bool True)
-        it "parses #f" $
-            parse parseAtom "" "#f" `shouldBe` Right (Bool False)
         it "parses single-character atom" $
             parse parseAtom "" "x" `shouldBe` Right (Atom "x")
         it "parses other atom" $
             parse parseAtom "" "foo" `shouldBe` Right (Atom "foo")
     describe "parseList" $
         it "parses a list of different atoms" $
-            parse parseList "" "#t #f x foo 123" `shouldBe` Right (List [Bool True, Bool False, Atom "x", Atom "foo", Number 123])
+            parse (parseList def) "" "#t #f x foo 123" `shouldBe` Right (List [Bool True, Bool False, Atom "x", Atom "foo", Number 123])
     describe "parseConsList" $
         it "parses a cons list" $
-            parse parseConsList "" "123 . foo" `shouldBe` Right (ConsList [Number 123] (Atom "foo"))
-    describe "parseNumber" $
+            parse (parseConsList def) "" "123 . foo" `shouldBe` Right (ConsList [Number 123] (Atom "foo"))
+    describe "parseNumberDef" $
         it "parses number literal" $
-            parse parseNumber "" "123" `shouldBe` Right (Number 123)
-    describe "parseString" $
+            parse parseNumberDef "" "123" `shouldBe` Right (Number 123)
+    describe "parseStringDef" $
         it "parses string literal" $
-            parse parseString "" "\"foo\"" `shouldBe` Right (String "foo")
+            parse parseStringDef "" "\"foo\"" `shouldBe` Right (String "foo")
     describe "parseQuoted" $
         it "parses quoted expression" $
-            parse parseQuoted "" "'\"foo\"" `shouldBe` Right (List [Atom "quote", String "foo"])
+            parse (parseQuoted def) "" "'\"foo\"" `shouldBe` Right (List [Atom "quote", String "foo"])
     describe "parseSExpr" $ do
         it "parses Z3 output" $ do
-            let Right result = parse parseSExpr ""
+            let Right result = parse (parseSExpr def) ""
                                 "(model\n\
                                 \(define-fun a4 () bool\n\
                                 \  false)\n\
@@ -293,10 +290,10 @@ spec = do
                         ]
                     ]
         it "skips comments" $
-            parse parseSExpr "" "(aaa; a comment\nbbb ccc)"
+            parse (parseSExpr def) "" "(aaa; a comment\nbbb ccc)"
                 `shouldBe` Right (List [Atom "aaa", Atom "bbb", Atom "ccc"])
         it "handles trailing whitespace" $
-            parse parseSExpr "" "(model \n  (define-fun y () bool\n    true)\n  (define-fun x () bool\n    false)\n)\n"
+            parse (parseSExpr def) "" "(model \n  (define-fun y () bool\n    true)\n  (define-fun x () bool\n    false)\n)\n"
                 `shouldBe` Right
                     (List
                         [ Atom "model"
