@@ -10,7 +10,7 @@ Portability : portable
 This module provides internal parser functions.
 -}
 
---{-# OPTIONS_GHC -Wall -Werror #-}
+{-# OPTIONS_GHC -Wall -Werror #-}
 
 {-# LANGUAGE CPP #-}
 
@@ -25,7 +25,6 @@ This module provides internal parser functions.
 #endif
 #endif
 
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleInstances #-}
 
@@ -48,7 +47,7 @@ module Text.SExpression.Internal
     ) where
 
 import Data.Default (Default(..))
-import Control.Applicative (empty, (*>))
+import Control.Applicative (empty)
 import Control.Monad (void)
 import Text.Megaparsec
     ( (<|>)
