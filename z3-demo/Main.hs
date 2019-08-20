@@ -23,7 +23,7 @@ import System.Process
 import Text.Megaparsec (parse)
 import Text.Megaparsec.Char (char, string)
 import Text.Printf (printf)
-import Text.SExpression (Parser, SExpr(..), parseSExpr)
+import Text.SExpression (Parser, SExpr(..), parseSExpr, def)
 
 data Z3SATResult = Satisfied | Unsatisfied deriving Show
 
@@ -57,7 +57,7 @@ parseZ3SATResult = do
         _ -> error "Unreachable"
 
 parseZ3Output :: Parser Z3Output
-parseZ3Output = Z3Output <$> parseZ3SATResult <*> parseSExpr
+parseZ3Output = Z3Output <$> parseZ3SATResult <*> parseSExpr def
 
 checkSATWithZ3 :: String -> String -> IO (Either String (Z3SATResult, [(String, Bool)]))
 checkSATWithZ3 ctx input = do
