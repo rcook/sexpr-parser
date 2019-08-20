@@ -1,7 +1,6 @@
-{-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wall -Werror #-}
 
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RecordWildCards #-}
 
 #undef MEGAPARSEC_7_OR_LATER
