@@ -44,7 +44,7 @@ module Text.SExpression.Internal
     , def
     ) where
 
-import Data.Default (Default(..))
+import Data.Default (def)
 import Control.Applicative (empty)
 import Control.Monad (void)
 import Text.Megaparsec

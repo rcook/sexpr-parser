@@ -52,6 +52,22 @@ data LiteralParsers = LiteralParsers
   , parseBool   :: Parser SExpr
   }
 
+instance Semigroup LiteralParsersM where
+  (<>)
+    (LiteralParsersM ps pn pb)
+    (LiteralParsersM ps' pn' pb') =
+    LiteralParsersM (ps <> ps') (pn <> pn') (pb <> pb')
+
+instance Default LiteralParsersM where
+  def = LiteralParsersM
+        { parseStringM = Just $ Last parseStringDef
+        , parseNumberM = Just $ Last parseNumberDef
+        , parseBoolM   = Just $ Last parseBoolDef
+        }
+
+instance Default LiteralParsers where
+  def = mkLiteralParsers def
+
 mkLiteralParsers ::
   (LiteralParsersM -> LiteralParsersM) ->
   LiteralParsers
@@ -90,12 +106,6 @@ overrideBoolP bp lp = lp <>
   , parseBoolM   = Just $ Last bp
   }
   
-instance Semigroup LiteralParsersM where
-  (<>)
-    (LiteralParsersM ps pn pb)
-    (LiteralParsersM ps' pn' pb') =
-    LiteralParsersM (ps <> ps') (pn <> pn') (pb <> pb')
-
 -- | Default parser for s-expression boolean literals
 parseBoolDef ::
   Parser SExpr
@@ -120,13 +130,3 @@ parseStringDef = do
     s <- many (noneOf "\"")
     void $ char '"'
     pure $ String s
-
-instance Default LiteralParsersM where
-  def = LiteralParsersM
-        { parseStringM = Just $ Last parseStringDef
-        , parseNumberM = Just $ Last parseNumberDef
-        , parseBoolM   = Just $ Last parseBoolDef
-        }
-
-instance Default LiteralParsers where
-  def = mkLiteralParsers def
