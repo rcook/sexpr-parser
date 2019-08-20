@@ -41,10 +41,8 @@ module Text.SExpression.Internal
     , overrideBoolP
     , overrideNumberP
     , overrideStringP
-    , def
     ) where
 
-import Data.Default (def)
 import Control.Applicative (empty)
 import Control.Monad (void)
 import Text.Megaparsec
@@ -71,7 +69,6 @@ import Text.Megaparsec.Char.Lexer
     , skipLineComment
     )
 import Text.SExpression.Types (Parser, SExpr(..))
-
 import Text.SExpression.Default
 
 sc :: Parser ()

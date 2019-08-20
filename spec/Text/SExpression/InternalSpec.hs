@@ -19,6 +19,7 @@ import Test.Hspec
     , shouldBe
     )
 import Text.Megaparsec (parse)
+import Data.Default (def)
 import Text.SExpression.Internal
     ( parseAtom
     , parseConsList
@@ -27,7 +28,6 @@ import Text.SExpression.Internal
     , parseQuoted
     , parseSExpr
     , parseStringDef
-    , def
     )
 import Text.SExpression.Types (SExpr(..))
 
