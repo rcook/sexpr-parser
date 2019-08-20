@@ -106,7 +106,10 @@ module Text.SExpression
       SExpr(..)
     , -- * S-expression parser
       parseSExpr
+    , -- * Polymorhic default value
+      def
     ) where
 
+import Data.Default (def)
 import Text.SExpression.Internal (parseSExpr)
 import Text.SExpression.Types (Parser, SExpr(..))
