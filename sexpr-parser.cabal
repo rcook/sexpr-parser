@@ -21,6 +21,7 @@ library
       Text.SExpression
     , Text.SExpression.Internal
     , Text.SExpression.Types
+    , Text.SExpression.Default
   build-depends:
       base              >= 4.9 && < 4.13
     , megaparsec        >= 6.5 && < 7.1
