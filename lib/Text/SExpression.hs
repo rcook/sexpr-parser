@@ -29,8 +29,7 @@ s-expressions) to display the satisfying assignment for the expression.
 > import Text.Megaparsec (parse)
 > import Text.Megaparsec.Char (char, string)
 > import Text.Printf (printf)
-> import Text.SExpression (Parser, SExpr(..), parseSExpr)
->
+> import Text.SExpression (Parser, SExpr(..), parseSExpr, def)
 > data Z3SATResult = Satisfied | Unsatisfied deriving Show
 >
 > data Z3Output = Z3Output Z3SATResult SExpr deriving Show
@@ -63,7 +62,7 @@ s-expressions) to display the satisfying assignment for the expression.
 >         _ -> error "Unreachable"
 >
 > parseZ3Output :: Parser Z3Output
-> parseZ3Output = Z3Output <$> parseZ3SATResult <*> parseSExpr
+> parseZ3Output = Z3Output <$> parseZ3SATResult <*> parseSExpr def
 >
 > checkSATWithZ3 :: String -> String -> IO (Either String (Z3SATResult, [(String, Bool)]))
 > checkSATWithZ3 ctx input = do
@@ -106,7 +105,7 @@ module Text.SExpression
       SExpr(..)
     , -- * S-expression parser
       parseSExpr
-    , -- * Polymorhic default value
+    , -- * Polymorphic default value
       def
     ) where
 
