@@ -82,8 +82,8 @@ instance Default LiteralParsers where
 -- | Smart constructor for parser configuration
 --   that allows overriding the default literal parsers
 mkLiteralParsers ::
-  (LiteralParsersM -> LiteralParsersM) -> -- ^ Cumulative override function
-  LiteralParsers
+     (LiteralParsersM -> LiteralParsersM) -- ^ Cumulative override function
+  -> LiteralParsers
 mkLiteralParsers f =
   case f def of
     LiteralParsersM{..} ->
@@ -93,9 +93,8 @@ mkLiteralParsers f =
         LiteralParsers parseString parseNumber parseBool
 
 -- | String parser override function
-overrideStringP ::
-  Parser SExpr -> -- ^ String parser
-  (LiteralParsersM ->  LiteralParsersM)
+overrideStringP :: Parser SExpr -- ^ String parser
+  -> (LiteralParsersM ->  LiteralParsersM)
 overrideStringP sp lp = lp <>
   LiteralParsersM
   { parseStringM = Just $ Last sp
@@ -104,9 +103,8 @@ overrideStringP sp lp = lp <>
   }
 
 -- | Number parser override function
-overrideNumberP ::
-  Parser SExpr -> -- ^ Number parser
-  (LiteralParsersM ->  LiteralParsersM)
+overrideNumberP :: Parser SExpr -- ^ Number parser
+  -> (LiteralParsersM ->  LiteralParsersM)
 overrideNumberP np lp = lp <>
   LiteralParsersM
   { parseStringM = Nothing
@@ -115,9 +113,8 @@ overrideNumberP np lp = lp <>
   }
 
 -- | Boolean parser override function
-overrideBoolP ::
-  Parser SExpr -> -- ^ Bool parser
-  (LiteralParsersM ->  LiteralParsersM)
+overrideBoolP :: Parser SExpr -- ^ Bool parser
+  -> (LiteralParsersM ->  LiteralParsersM)
 overrideBoolP bp lp = lp <>
   LiteralParsersM
   { parseStringM = Nothing
