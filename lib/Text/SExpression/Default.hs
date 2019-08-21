@@ -14,7 +14,17 @@
 #endif
 #endif
 
-module Text.SExpression.Default where
+module Text.SExpression.Default
+  ( LiteralParsers(..)
+  , LiteralParsersM
+  , mkLiteralParsers
+  , overrideStringP
+  , overrideNumberP
+  , overrideBoolP
+  , parseStringDef
+  , parseNumberDef
+  , parseBoolDef
+  ) where
 
 import Data.Semigroup (Last(..))
 import Data.Default
@@ -39,12 +49,14 @@ import Text.Megaparsec.Char
 #endif
     )
 
+-- | Partial parser configuration
 data LiteralParsersM = LiteralParsersM
   { parseStringM :: Maybe (Last (Parser SExpr))
   , parseNumberM :: Maybe (Last (Parser SExpr))
   , parseBoolM   :: Maybe (Last (Parser SExpr))
   }
 
+-- | Fully defined parser configuration
 data LiteralParsers = LiteralParsers
   { parseString :: Parser SExpr
   , parseNumber :: Parser SExpr
@@ -67,8 +79,10 @@ instance Default LiteralParsersM where
 instance Default LiteralParsers where
   def = mkLiteralParsers def
 
+-- | Smart constructor for parser configuration
+--   that allows overriding the default literal parsers
 mkLiteralParsers ::
-  (LiteralParsersM -> LiteralParsersM) ->
+  (LiteralParsersM -> LiteralParsersM) -> -- ^ Cumulative override function
   LiteralParsers
 mkLiteralParsers f =
   case f def of
@@ -78,8 +92,10 @@ mkLiteralParsers f =
           Just (Last parseBool)   = parseBoolM in
         LiteralParsers parseString parseNumber parseBool
 
+-- | String parser override function
 overrideStringP ::
-  Parser SExpr -> LiteralParsersM ->  LiteralParsersM
+  Parser SExpr -> -- ^ String parser
+  (LiteralParsersM ->  LiteralParsersM)
 overrideStringP sp lp = lp <>
   LiteralParsersM
   { parseStringM = Just $ Last sp
@@ -87,8 +103,10 @@ overrideStringP sp lp = lp <>
   , parseBoolM   = Nothing
   }
 
+-- | Number parser override function
 overrideNumberP ::
-  Parser SExpr -> LiteralParsersM ->  LiteralParsersM
+  Parser SExpr -> -- ^ Number parser
+  (LiteralParsersM ->  LiteralParsersM)
 overrideNumberP np lp = lp <>
   LiteralParsersM
   { parseStringM = Nothing
@@ -96,8 +114,10 @@ overrideNumberP np lp = lp <>
   , parseBoolM   = Nothing
   }
 
+-- | Boolean parser override function
 overrideBoolP ::
-  Parser SExpr -> LiteralParsersM ->  LiteralParsersM
+  Parser SExpr -> -- ^ Bool parser
+  (LiteralParsersM ->  LiteralParsersM)
 overrideBoolP bp lp = lp <>
   LiteralParsersM
   { parseStringM = Nothing
