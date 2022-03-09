@@ -26,6 +26,7 @@ module Text.SExpression.Default
   , parseBoolDef
   ) where
 
+import Data.Maybe (fromJust)
 import Data.Semigroup (Last(..))
 import Data.Default
 import Text.SExpression.Types (SExpr(..), Parser)
@@ -87,9 +88,9 @@ mkLiteralParsers ::
 mkLiteralParsers f =
   case f def of
     LiteralParsersM{..} ->
-      let Just (Last parseString) = parseStringM
-          Just (Last parseNumber) = parseNumberM
-          Just (Last parseBool)   = parseBoolM in
+      let Last parseString = fromJust parseStringM
+          Last parseNumber = fromJust parseNumberM
+          Last parseBool   = fromJust parseBoolM in
         LiteralParsers parseString parseNumber parseBool
 
 -- | String parser override function

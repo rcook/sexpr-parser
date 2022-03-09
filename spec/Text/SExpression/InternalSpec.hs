@@ -8,7 +8,7 @@ Stability   : stable
 Portability : portable
 -}
 
-{-# OPTIONS_GHC -Wall -Werror #-}
+{-# OPTIONS_GHC -Wall -Werror -Wno-incomplete-uni-patterns #-}
 
 module Text.SExpression.InternalSpec (spec) where
 
